@@ -9,10 +9,12 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"shd101wyy.markdown-preview-enhanced",
 				"anthropic.claude-code",
 				"ms-toolsai.jupyter",
-				"quarto.quarto"
+				"quarto.quarto",
+				"ms-vscode.makefile-tools",
+				"ms-python.python",
+				"ms-vscode.cpptools-extension-pack"
 			]
 		}
 	},

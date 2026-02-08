@@ -6,7 +6,7 @@
 
 // Note that this is hardcoded to work for just 2 threads below
 // Be very carefult about assuming you can just bump this up to make
-// everythign work for a larger scale (number of workers).
+// everything work for a larger scale (number of workers).
 #define NUM_THREADS (10)
 
 // Note that often the "digit sum" rather than "sum of the digits" is defined as the sum of the digit in each 10's place, but
@@ -44,7 +44,7 @@ pthread_t threads[NUM_THREADS];
 threadParams_t threadParams[NUM_THREADS];
 
 // Thread specific globals
-int gsum[NUM_THREADS];
+long int gsum[NUM_THREADS];
 
 void *sumThread(void *threadp)
 {
@@ -60,13 +60,13 @@ void *sumThread(void *threadp)
     for(i=start; i<=end; i++)
     {
         gsum[idx] = gsum[idx] + i;
-        printf("thread idx=%d, gsum=%d\n", idx, gsum[idx]);
+        printf("thread idx=%d, gsum=%ld\n", idx, gsum[idx]);
     }
 }
 
 int main (int argc, char *argv[])
 {
-   int range=COUNT/NUM_THREADS, gsumall=0; int i=0;
+   int range=COUNT/NUM_THREADS; long int gsumall=0; int i=0;
 
    // initialize gsum array to zero
    for(i=0; i<NUM_THREADS; i++)
@@ -93,9 +93,9 @@ int main (int argc, char *argv[])
 
    gsumall+=COUNT;
 
-   printf("TEST COMPLETE: gsum[0]=%d, gsum[1]=%d, gsumall=%d\n", 
-          gsum[0], gsum[1], gsumall);
+   printf("TEST COMPLETE: gsum[0]=%ld, gsum[1]=%ld, gsum[2]=%ld, gsum[3]=%ld, gsum[4]=%ld, gsum[5]=%ld, gsum[6]=%ld, gsum[7]=%ld, gsum[8]=%ld, gsum[9]=%ld, gsumall=%ld\n", 
+          gsum[0], gsum[1], gsum[2], gsum[4], gsum[5], gsum[6], gsum[7], gsum[8], gsum[9], gsumall);
 
    // Verfiy that sum of thread indexed sums is (n*(n+1))/2
-   printf("TEST COMPLETE: gsumall=%d, [n[n+1]]/2=%d\n", gsumall, (COUNT*(COUNT+1))/2);
+   printf("TEST COMPLETE: gsumall=%ld, [n[n+1]]/2=%ld\n", gsumall, (COUNT*(COUNT+1))/2);
 }

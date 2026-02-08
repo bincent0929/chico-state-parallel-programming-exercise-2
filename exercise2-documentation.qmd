@@ -42,3 +42,67 @@ TEST COMPLETE: gsumall=500000500000, [n[n+1]]/2=500000500000
 ```
 
 From the output, the outcome of each thread completing their job possibly out of numerical sequence does not have an impact on the final sum.
+
+### c
+
+So I went back and timed my `edited-sumnums.c` program that calculated 1...1*10^6.
+
+The result was:
+```bash
+real    0m43.502s
+user    0m0.474s
+sys     0m1.994s
+```
+
+And my `edited-openmp-sumnums.c` implementation resulted in:
+```bash
+real    0m41.644s
+user    0m0.199s
+sys     0m0.645s
+```
+
+Which I'm surprised by. When running it, it seems much faster than the Pthread implementation.
+
+In terms of order, the OpenMP implementation does start on the first index and go through each sequentially from `idx = 0...9`.
+
+Yes, I could verify whether the subranges are correct using the formula given, $n(n+1)/2$ but you have to subtract the result for the start and end for the subrange.
+
+The formula would be:
+```python
+((end * (end+1)) / 2) - ((start * (start+1)) / 2)
+```
+
+Basically, a `final - initial` for the range.
+
+Let's go ahead and do a calculation with that equation to make sure it's right:
+``` {python}
+start_1hunt = 100000
+end_2hunt = 200000
+
+subrange_sum_1hunt_to_2hunt = ((end_2hunt * (end_2hunt+1)) / 2) - ((start_1hunt * (start_1hunt+1))/2)
+```
+
+Which results in `{python} subrange_sum_1hunt_to_2hunt`.
+
+Well, now that I do the calculation, there does seem to be a descrepancy between what we get with the calclulation vs. what we get from the program.
+
+From the program, for the range we calculated here we get `gsum[1]=14999950000`, which is 100k less than what it actually should be.
+
+Based on what is said in the comments in the program, I'm assuming it's because each "worker" sums up until `n-1` rather than up to their `n`.
+
+Here is the code I'm referencing (I added the comment with the arrow):
+```c
+// we add int COUNT here in the final reduction since each worker
+// summed up to n-1, so we have to add final value n
+
+// this can probably be parallelized by openmp
+#pragma omp parallel for num_threads(NUM_THREADS) reduction(+:gsumall)
+for(i=0; i<NUM_THREADS; i++)
+    gsumall+=gsum[i];
+
+gsumall+=COUNT; // <--- this here is where we get that extra 100k in the end
+```
+
+## 2
+
+### a

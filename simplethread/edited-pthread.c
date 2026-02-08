@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <sched.h>
 
-#define NUM_THREADS 10
+#define NUM_THREADS 8
 
 typedef struct
 {
@@ -22,7 +22,7 @@ void *counterThread(void *threadp)
     int sum=0, i;
     threadParams_t *threadParams = (threadParams_t *)threadp;
 
-    for(i=1; i < (threadParams->threadIdx)+1; i++)
+    for(i=1; i <= ((threadParams->threadIdx)+1) * 100; i++)
         sum=sum+i;
  
     printf("Thread idx=%d, sum[0...%d]=%d\n", 

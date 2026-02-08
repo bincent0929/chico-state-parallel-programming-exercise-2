@@ -1,0 +1,35 @@
+## 1
+
+### a
+
+In running my `edited-pthread.c` program, the only difference between runs is which thread presents its sum first.
+
+For one run it may be:
+```bash
+Thread idx=0, sum[0...0]=5050
+Thread idx=2, sum[0...2]=45150
+Thread idx=3, sum[0...3]=80200
+Thread idx=4, sum[0...4]=125250
+Thread idx=1, sum[0...1]=20100
+Thread idx=5, sum[0...5]=180300
+Thread idx=6, sum[0...6]=245350
+Thread idx=7, sum[0...7]=320400
+TEST COMPLETE
+```
+
+But for another it could be:
+```bash
+Thread idx=0, sum[0...0]=5050
+Thread idx=3, sum[0...3]=80200
+Thread idx=2, sum[0...2]=45150
+Thread idx=1, sum[0...1]=20100
+Thread idx=4, sum[0...4]=125250
+Thread idx=7, sum[0...7]=320400
+Thread idx=5, sum[0...5]=180300
+Thread idx=6, sum[0...6]=245350
+```
+
+Otherwise the values are the same.
+
+### b
+

@@ -1,1 +1,11 @@
 .venv/
+
+*.o
+
+edited-pthread
+pthread
+pthread2
+pthread3
+pthread4
+
+sumnums

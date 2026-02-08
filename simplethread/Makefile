@@ -13,11 +13,14 @@ CFILES= pthread.c
 SRCS= ${HFILES} ${CFILES}
 OBJS= ${CFILES:.c=.o}
 
-all:	pthread pthread2 pthread3 pthread4
+all:	edited-pthread pthread pthread2 pthread3 pthread4
 
 clean:
 	-rm -f *.o *.d
-	-rm -f pthread pthread2 pthread3 pthread4
+	-rm -f edited-pthread pthread pthread2 pthread3 pthread4
+
+edited-pthread: edited-pthread.o
+	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $@.o -lpthread
 
 pthread: pthread.o
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $@.o -lpthread

@@ -44,6 +44,7 @@ pthread_t threads[NUM_THREADS];
 threadParams_t threadParams[NUM_THREADS];
 
 // Thread specific globals
+// have to make long to be able to hold more than 2m
 long int gsum[NUM_THREADS];
 
 void *sumThread(void *threadp)
@@ -66,6 +67,7 @@ void *sumThread(void *threadp)
 
 int main (int argc, char *argv[])
 {
+    // have to make gsumall values long to be able to hold more than 2m per
    int range=COUNT/NUM_THREADS; long int gsumall=0; int i=0;
 
    // initialize gsum array to zero
@@ -93,9 +95,11 @@ int main (int argc, char *argv[])
 
    gsumall+=COUNT;
 
+   // needed to update to print the final sums for each subrange
    printf("TEST COMPLETE: gsum[0]=%ld, gsum[1]=%ld, gsum[2]=%ld, gsum[3]=%ld, gsum[4]=%ld, gsum[5]=%ld, gsum[6]=%ld, gsum[7]=%ld, gsum[8]=%ld, gsum[9]=%ld, gsumall=%ld\n", 
           gsum[0], gsum[1], gsum[2], gsum[4], gsum[5], gsum[6], gsum[7], gsum[8], gsum[9], gsumall);
 
    // Verfiy that sum of thread indexed sums is (n*(n+1))/2
+   // need to place (long) there so that there isn't an overflow
    printf("TEST COMPLETE: gsumall=%ld, [n[n+1]]/2=%ld\n", gsumall, ((long)COUNT*(COUNT+1))/2);
 }

@@ -2,7 +2,7 @@
 
 ### a
 
-In running my `edited-pthread.c` program, the only difference between runs is which thread presents its sum first.
+In running my `edited-pthread.c` program (located in `sumnumms/`), the only difference between runs is which thread presents its sum first.
 
 For one run it may be:
 ```bash
@@ -105,5 +105,22 @@ gsumall+=COUNT; // <--- this here is where we get that extra 100k in the end
 
 ## 2
 
-### a
+See `eratosthenes-parallel/eratosomp.c` for my implementation.
+
+Here's an example output for the time:
+
+```bash
+$ ./eratosomp 
+Using DEFAULT thread_count of 20
+max uint = 4294967295
+max long long = 18446744073709551615
+Sufficient memory for prime sieve up to 1000000000 using 119 Mbytes at address=0x75110ccda010
+Initial set_isprime(1000000000) in 0.280678 secs
+chk_isprime(1000000000) in 4.042016 secs
+Entering cross out loop
+Done with cross out loop with set_isprime(1000000000) time=1.919756 secs
+Total number of primes chk_isprime(1000000000) in 0.161465 secs
+```
+
+## 3
 

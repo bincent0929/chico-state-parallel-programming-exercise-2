@@ -32,30 +32,13 @@
 // It should techically be called a sum of a series of numbers in an arithmetic progression.
 //
 
-typedef struct
-{
-    int threadIdx;
-    int start;
-    int end;
-} threadParams_t;
-
-
-// POSIX thread declarations and scheduling attributes
-pthread_t threads[NUM_THREADS];
-threadParams_t threadParams[NUM_THREADS];
-
 // Thread specific globals
 // have to make long to be able to hold more than 2m
 long int gsum[NUM_THREADS];
 
-void *sumThread(void *threadp)
+void *sumThread(int start, int end, int idx)
 {
-    int i, idx, start, end;
-    threadParams_t *threadParams = (threadParams_t *)threadp;
-
-    start = threadParams->start;
-    end = threadParams->end;
-    idx = threadParams->threadIdx;
+    int i;
 
     printf("Thread %d summing range %d to %d\n", idx, start, end);
 
@@ -77,20 +60,24 @@ int main (int argc, char *argv[])
 
    printf("Each thread subrange is %d\n", range);
 
-   for(i=0; i<NUM_THREADS; i++)
-   {
-      threadParams[i].threadIdx=i;
-      threadParams[i].start=(i*range);
-      threadParams[i].end=((i*range)+range)-1;
+    // this definitely needs to be parallelized using openmp
+    #pragma omp parallel for num_threads(NUM_THREADS)
+    for(i=0; i<NUM_THREADS; i++)
+    {
+        int idx, start, end;
 
-      pthread_create(&threads[i], (void *)0, sumThread, (void *)&(threadParams[i]));
-   }
+        idx= i;
+        start= (i*range);
+        end= ((i*range)+range)-1;
 
-   for(i=0; i<NUM_THREADS; i++)
-     pthread_join(threads[i], NULL);
+        sumThread(start, end, i);
+    }
 
    // we add int COUNT here in the final reduction since each worker
    // summed up to n-1, so we have to add final value n
+   
+   // this can probably be parallelized by openmp
+   #pragma omp parallel for num_threads(NUM_THREADS) reduction(+:gsumall)
    for(i=0; i<NUM_THREADS; i++)
        gsumall+=gsum[i];
 

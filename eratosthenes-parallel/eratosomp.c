@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <omp.h>
 
 
 // Simple code to implement the original Eratosthenes Sieve
@@ -11,12 +12,12 @@
 //
 // Should work as long as you have sufficent memory to malloc the bitmap.
 //
-// define GIANT for test up to 4 billion, else will do range to 1 million
+// limit is 1 billion --> previously --> define GIANT for test up to 4 billion, else will do range to 1 million
 //
 #define GIANT
 
 #ifdef GIANT
-#define MAX (4000000000ULL) // limit is 4 billion based on 32-bit primes, 64-bit SP
+#define MAX (1000000000ULL) // limit is 1 billion --> previously --> limit is 4 billion based on 32-bit primes, 64-bit SP
 #else
 #define MAX (1000000ULL)
 #endif
@@ -29,8 +30,8 @@
 unsigned char *isprime;
 
 // List of the primes - assumes that at most 10% of numbers are prime
-// E.g., 400 million primes or less in the range 0...4 billion
-#define MAX_PRIMES (400000000)
+// changed to base assumption on the current MAX value --> previously --> E.g., 400 million primes or less in the range 0...4 billion
+#define MAX_PRIMES (MAX / 10)
 unsigned int primelist[MAX_PRIMES];
 
 int chk_isprime(unsigned long long int i)
@@ -102,7 +103,7 @@ void print_isprime(void)
 
 int main(int argc, char *argv[])
 {
-    int thread_count=20;
+    int thread_count=20; // updated to use all the threads on my machine
     unsigned long long int i, j;
     unsigned long long int p=2;
     unsigned int cnt=0;

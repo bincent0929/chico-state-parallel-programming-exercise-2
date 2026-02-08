@@ -97,5 +97,5 @@ int main (int argc, char *argv[])
           gsum[0], gsum[1], gsum[2], gsum[4], gsum[5], gsum[6], gsum[7], gsum[8], gsum[9], gsumall);
 
    // Verfiy that sum of thread indexed sums is (n*(n+1))/2
-   printf("TEST COMPLETE: gsumall=%ld, [n[n+1]]/2=%ld\n", gsumall, (COUNT*(COUNT+1))/2);
+   printf("TEST COMPLETE: gsumall=%ld, [n[n+1]]/2=%ld\n", gsumall, ((long)COUNT*(COUNT+1))/2);
 }

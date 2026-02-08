@@ -33,3 +33,12 @@ Otherwise the values are the same.
 
 ### b
 
+There's A LOT of output that comes from the 1...1*10^6 program. So I can't really see the order exactly, but it does appear that the thread at index 4 finished last. Which makes it clear that the threads don't operate in sequential, numbered order.
+
+Based on the output from `edit-sumnums.c`:
+```bash
+TEST COMPLETE: gsum[0]=4999950000, gsum[1]=14999950000, gsum[2]=24999950000, gsum[3]=34999950000, gsum[4]=44999950000, gsum[5]=54999950000, gsum[6]=64999950000, gsum[7]=74999950000, gsum[8]=84999950000, gsum[9]=94999950000, gsumall=500000500000
+TEST COMPLETE: gsumall=500000500000, [n[n+1]]/2=500000500000
+```
+
+From the output, the outcome of each thread completing their job possibly out of numerical sequence does not have an impact on the final sum.

@@ -97,7 +97,7 @@ int main (int argc, char *argv[])
 
    // needed to update to print the final sums for each subrange
    printf("TEST COMPLETE: gsum[0]=%ld, gsum[1]=%ld, gsum[2]=%ld, gsum[3]=%ld, gsum[4]=%ld, gsum[5]=%ld, gsum[6]=%ld, gsum[7]=%ld, gsum[8]=%ld, gsum[9]=%ld, gsumall=%ld\n", 
-          gsum[0], gsum[1], gsum[2], gsum[4], gsum[5], gsum[6], gsum[7], gsum[8], gsum[9], gsumall);
+          gsum[0], gsum[1], gsum[2], gsum[3], gsum[4], gsum[5], gsum[6], gsum[7], gsum[8], gsum[9], gsumall);
 
    // Verfiy that sum of thread indexed sums is (n*(n+1))/2
    // need to place (long) there so that there isn't an overflow

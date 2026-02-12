@@ -1,6 +1,6 @@
-## 1
+## 1.
 
-### a
+### a.
 
 In running my `edited-pthread.c` program (located in `sumnumms/`), the only difference between runs is which thread presents its sum first.
 
@@ -31,7 +31,7 @@ Thread idx=6, sum[0...6]=245350
 
 Otherwise the values are the same.
 
-### b
+### b.
 
 There's A LOT of output that comes from the 1...1*10^6 program. So I can't really see the order exactly, but it does appear that the thread at index 4 finished last. Which makes it clear that the threads don't operate in sequential, numbered order.
 
@@ -43,7 +43,7 @@ TEST COMPLETE: gsumall=500000500000, [n[n+1]]/2=500000500000
 
 From the output, the outcome of each thread completing their job possibly out of numerical sequence does not have an impact on the final sum.
 
-### c
+### c.
 
 So I went back and timed my `edited-sumnums.c` program that calculated 1...1*10^6.
 
@@ -103,7 +103,7 @@ for(i=0; i<NUM_THREADS; i++)
 gsumall+=COUNT; // <--- this here is where we get that extra 100k in the end
 ```
 
-## 2
+## 2.
 
 See `eratosthenes-parallel/eratosomp.c` for my implementation.
 
@@ -122,7 +122,7 @@ Done with cross out loop with set_isprime(1000000000) time=1.919756 secs
 Total number of primes chk_isprime(1000000000) in 0.161465 secs
 ```
 
-## 3
+## 3.
 
 See `matrotate.c` for my OpenMP rotation program.
 
@@ -143,10 +143,10 @@ The pgms were rotated in 0.035044 secs
 ```
 
 ``` {python}
-n-parallel-rotation-t = 0.110802
-parallel-rotation-t = 0.035044
+n_parallel_rotation_t = 0.110802
+parallel_rotation_t = 0.035044
 
-rotation-speedup = n-parallel-rotation-t / parallel-rotation-t
+rotation_speedup = n_parallel_rotation_t / parallel_rotation_t
 ```
 
-Which is a `{python} rotation-speedup`x speedup!!!
+Which is a `{python} f"{rotation_speedup:.2f}"`x speedup!!!

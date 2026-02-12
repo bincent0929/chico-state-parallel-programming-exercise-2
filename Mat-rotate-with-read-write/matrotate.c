@@ -17,6 +17,7 @@
 #define SQDIM (max(DIMX, DIMY))
 
 #define THREAD_COUNT (20)
+#define CARDFILELISTLENGTH (52)
 
 unsigned char P[SQDIM][SQDIM];     // Pixel array of gray values
 unsigned char TP[SQDIM][SQDIM];    // Transpose of Pixel array
@@ -56,9 +57,13 @@ int main(int argc, char *argv[])
     struct timespec now, start;
     double fnow=0.0, fstart=0.0, faccum=0.0;
 
+    int i;
+    char outFileName[64];
+
     // initialize Pixel array with all zeros
     zeroPixMat(P);
 
+#if 0
     if(argc < 3) {
         printf("Use: matrotate <inputfile> <outputfile>\n");
         exit(-1);
@@ -91,45 +96,55 @@ int main(int argc, char *argv[])
     readPGMDataFast(fdin, P);
     close(fdin);
 
-#if 0
+
     // demonstrate rotation with a smaller verification size
     demoRotate(8);
     printf("Demonstration done\n");
 #endif
 
-    // Zero out to test file output
-    //zeroPixMat(P);
-    //
-    // Rotate Right zero out test - replace with correct rotation
-    //zeroPixMat(RRP);
-
+    printf("Starting the rotations...\n");
     clock_gettime(CLOCK_MONOTONIC, &now);
     fstart = (double)start.tv_sec  + (double)start.tv_nsec / 1000000000.0;
     fnow = (double)now.tv_sec  + (double)now.tv_nsec / 1000000000.0;
     clock_gettime(CLOCK_MONOTONIC, &start);
     
-    swapColPixMat(P, RRP, DIMY);
-    
+    for (int i;i<CARDFILELISTLENGTH;i++) {
+        if((fdin = open(cardfilelist[i], O_RDONLY, 0644)) < 0) {
+             printf("Error opening %s\n", cardfilelist[i]); exit(-1);
+        }
+
+        // read in the PGM data here
+        readPGMHeaderFast(fdin, header);
+        readPGMDataFast(fdin, P);
+        close(fdin);
+
+        snprintf(outFileName, sizeof(outFileName), "edited-%s", cardfilelist[i]);
+
+        // open binary file to write out data
+        if((fdout = open(outFileName, O_WRONLY | O_CREAT, 0644)) < 0) {
+            printf("Error opening %s\n", outFileName); exit(-1);
+        }
+        
+        // Update header to be square 920x920
+        header[26]='9'; header[27]='2'; header[28]='0';
+        if (cardfilelist[i][1] == 'C' || cardfilelist[i][1] == 'S') {
+            swapColPixMat(P, RRP, DIMY);    
+            writePGMFastSquare(fdout, header, RRP);
+        }
+        else {
+            swapRowPixMat(P, RLP, DIMY);
+            writePGMFastSquare(fdout, header, RLP);
+        }
+
+        close(fdout);
+    }
+
     clock_gettime(CLOCK_MONOTONIC, &now);
     fstart = (double)start.tv_sec  + (double)start.tv_nsec / 1000000000.0;
     fnow = (double)now.tv_sec  + (double)now.tv_nsec / 1000000000.0;
 
-    printf("The pgm was rotated in %lf secs\n", (fnow-fstart));
-    //swapRowPixMat(P, RLP, DIMY);
-
-    // Update header to be square 920x920
-    header[26]='9'; header[27]='2'; header[28]='0';
-    printf("\nUpdated SQUARE HEADER:\n");
-    printPGMHeader(header);
-
-    // write out modified PGM data here
-    writePGMFastSquare(fdout, header, RRP);
-    //writePGMFastSquare(fdout, header, RLP);
-    //writePGMFastSquare(fdout, header, P);
-    close(fdout);
-
-    printf("Read and then write of unmodified or test PGM done\n");
-
+    printf("Finished rotating.\n");
+    printf("The pgms were rotated in %lf secs\n", (fnow-fstart));
 }
 
 // for some reason parallelizing both of these functions as I've done it makes them slower...

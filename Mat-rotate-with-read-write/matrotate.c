@@ -4,7 +4,10 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#include <time.h>
 #include <omp.h>
+#include <cardlist.h>
 
 // This is the dimension of a playing card with a 3:4 Aspect Ratio (standing upright)
 #define DIMX (690)
@@ -12,6 +15,8 @@
 
 #define max(X, Y) ((X) > (Y) ? (X) : (Y))
 #define SQDIM (max(DIMX, DIMY))
+
+#define THREAD_COUNT (20)
 
 unsigned char P[SQDIM][SQDIM];     // Pixel array of gray values
 unsigned char TP[SQDIM][SQDIM];    // Transpose of Pixel array
@@ -46,6 +51,10 @@ int main(int argc, char *argv[])
     int fdin, fdout, rowIdx, colIdx;
     //int bytesRead, bytesLeft, bytesWritten;
     char header[80];
+
+    // Instrumented time-stamps in code
+    struct timespec now, start;
+    double fnow=0.0, fstart=0.0, faccum=0.0;
 
     // initialize Pixel array with all zeros
     zeroPixMat(P);
@@ -94,7 +103,18 @@ int main(int argc, char *argv[])
     // Rotate Right zero out test - replace with correct rotation
     //zeroPixMat(RRP);
 
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    fstart = (double)start.tv_sec  + (double)start.tv_nsec / 1000000000.0;
+    fnow = (double)now.tv_sec  + (double)now.tv_nsec / 1000000000.0;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    
     swapColPixMat(P, RRP, DIMY);
+    
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    fstart = (double)start.tv_sec  + (double)start.tv_nsec / 1000000000.0;
+    fnow = (double)now.tv_sec  + (double)now.tv_nsec / 1000000000.0;
+
+    printf("The pgm was rotated in %lf secs\n", (fnow-fstart));
     //swapRowPixMat(P, RLP, DIMY);
 
     // Update header to be square 920x920
@@ -112,11 +132,15 @@ int main(int argc, char *argv[])
 
 }
 
+// for some reason parallelizing both of these functions as I've done it makes them slower...
+// ok I did some research and it's apparently more effective to parallize multiple image processes
+// instead of trying to optimize one.
 
 void swapRowPixMat(unsigned char Mat[][SQDIM], unsigned char TMat[][SQDIM], int square_size)
 {
     int idx, jdx;
-
+    // jdx needs to be private so that each thread isn't writing over what other threads do.
+    //#pragma omp parallel for num_threads(THREAD_COUNT) private(jdx)
     for(idx=0; idx<square_size; idx++)       
         for(jdx=0; jdx<square_size; jdx++)  
         {
@@ -129,7 +153,8 @@ void swapRowPixMat(unsigned char Mat[][SQDIM], unsigned char TMat[][SQDIM], int 
 void swapColPixMat(unsigned char Mat[][SQDIM], unsigned char TMat[][SQDIM], int square_size)
 {
     int idx, jdx;
-
+    // same reasoning as the above function
+    //#pragma omp parallel for num_threads(THREAD_COUNT) private(jdx)
     for(idx=0; idx<square_size; idx++)       
         for(jdx=0; jdx<square_size; jdx++)  
         {

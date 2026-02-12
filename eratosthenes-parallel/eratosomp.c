@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
         //
 
         clock_gettime(CLOCK_MONOTONIC, &start);
-#pragma omp parallel for num_threads(thread_count)
+        #pragma omp parallel for num_threads(thread_count)
         for(j=2*p; j<MAX+1; j+=p)
         {
             //printf("j=%llu\n", j);

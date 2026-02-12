@@ -173,11 +173,20 @@ As you can see I did go ahead and test the semiprimes that we were given in the 
 
 You'll have to check my logic in the program to verify that I didn't just hard code the values.
 
-{::: {.callout-warning}
-I guess I need to use a second source to verify my calculations.
+``` {python}
+from sympy import prevprime, factorint
 
-I think I'll just ask an LLM how I'm supposed to do this.
-:::}
+# primepi was not working so I just checked to verify it on
+# t5k online.
+# 50,847,534 primes ≤ 1 billion is a well-known, published result
+# (see https://t5k.org/howmany.html)
+
+print(prevprime(1000000000))
+print(prevprime(999999937))
+
+for sp in [35, 376223, 4006336753, 406615978649, 4154092115820191, 418155269059864129]:
+    print(f"{sp} = {factorint(sp)}")
+```
 
 ``` {python}
 eratos_openmp_time = 8.243
@@ -191,6 +200,8 @@ The speed up with parallelization was `{python} f"{eratos_openmp_speedup:.2f}"`x
 ## 3.
 
 See `matrotate.c` for my OpenMP rotation program.
+
+!!! I did make sure and place the timing collectors before and after the segment which includes the I/O and the rest of the logic for processing the images !!!
 
 In testing without OpenMP for rotating all the images, the program completed the to-be-parallelized portion in:
 ```bash

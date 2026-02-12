@@ -34,6 +34,9 @@ unsigned char *isprime;
 #define MAX_PRIMES (MAX / 10)
 unsigned int primelist[MAX_PRIMES];
 
+#define PRIME1 (100000)
+#define PRIME2 (1000000)
+
 int chk_isprime(unsigned long long int i)
 {
     unsigned long long int idx;
@@ -111,6 +114,7 @@ int main(int argc, char *argv[])
     unsigned long long int thread_idx=0;
     unsigned long long int sp=0;
 	int idx=0, ridx=0, primechk;
+    unsigned int p1, p2, found;
 
     // Instrumented time-stamps in code
     struct timespec now, start;
@@ -205,6 +209,7 @@ int main(int argc, char *argv[])
   
 
         // find next lowest prime - sequential process
+        // update this loop to add OpenMP
         for(j=p+1; j<MAX+1; j++)
         {
             if(chk_isprime(j)) 
@@ -251,7 +256,14 @@ int main(int argc, char *argv[])
     fstart = (double)start.tv_sec  + (double)start.tv_nsec / 1000000000.0;
     fnow = (double)now.tv_sec  + (double)now.tv_nsec / 1000000000.0;
     printf("Total number of primes chk_isprime(%llu) in %lf secs", MAX, (fnow-fstart));
-  
+
+    //!!!!!!!!!!!!!!!!!!!!!!!
+    /**
+     * So it looks like it goes through the total values multiple times
+     * to pick out the primes. The one above counts how many there are
+     * then the one below seems to actually add them to the list.
+     */
+    //!!!!!!!!!!!!!!!!!!!!!!!
 
     // Can't thread this as the cnt is global and indexes the list of primes
     // unless we use omp critical, but that would serialize
@@ -279,22 +291,58 @@ int main(int argc, char *argv[])
         if((i % 1000000) == 0) printf("%u\n", primelist[i]);
 
     // Let's now compute an example large semi-prime
-    //
 #ifdef GIANT
-    sp = ((unsigned long long)primelist[1000000]) * ((unsigned long long)primelist[50000000]);
+    sp = ((unsigned long long)primelist[PRIME1]) * ((unsigned long long)primelist[PRIME2]);
 
     printf("Example large SP is %llu, factored into p1=%u, p2=%u\n", 
-           sp, primelist[1000000], primelist[50000000]);
+           sp, primelist[PRIME1], primelist[PRIME2]);
+        
+    printf("The largest prime in %llu is %u\n", MAX, primelist[list_cnt - 1]);
 #else
     sp = ((unsigned long long)primelist[10000]) * ((unsigned long long)primelist[50000]);
 
     printf("Example large SP is %llu, factored into p1=%u, p2=%u\n", 
            sp, primelist[10000], primelist[50000]);
 #endif
-
+    /*
     printf("Now we could use the primelist and search for the first prime where (sp mod p1) == 0\n");
     printf("Once we find the first zero modulo, then p2 = sp / p1 and we have our factors!\n");
-
+    */
+   printf("Looking for the semiprimes using our prime list:\n");
+   /**
+    * !!! I've already resolved this problem, but this explains my thought process !!!
+    * The only problem with speedup here is that one of the threads will find the
+    * first prime, and then another will find the second. Based on how the program is specified
+    * I need to somehow have the search for all threads terminate once an if is satisfied.
+    */
+   #pragma omp parallel for num_threads(thread_count) shared(found, p1, p2)
+   for (i = 0; i<list_cnt;i++) {
+        /**
+         * This marks where the for loop and be cancelled.
+         * A feature in omp for "breaking" the for loop
+         */
+        # pragma omp cancellation point for
+        if (!found && sp % primelist[i] == 0) 
+        #pragma omp critical
+        {
+            /**
+             * This check needs to be here in case
+             * another thread stumbles on p2 before
+             * a thread gets p1.
+             */
+            if (!found || primelist[i] < p1)
+            {
+                p1 = primelist[i];
+                p2 = sp / p1;
+                found = 1;
+            }
+        }
+        #pragma omp cancel for
+   }
+   if (p1 == primelist[PRIME1] && p2 == primelist[PRIME2]) {
+        printf("The reverse search using the semiprime and the prime list worked!\n");
+        printf("Like above the primes were: %u, and %u for %llu\n", p1, p2, sp);
+    }
     return (i);
 }
 

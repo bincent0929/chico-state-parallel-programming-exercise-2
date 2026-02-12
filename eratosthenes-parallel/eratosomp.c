@@ -36,6 +36,7 @@ unsigned int primelist[MAX_PRIMES];
 
 #define PRIME1 (100000)
 #define PRIME2 (1000000)
+#define TO_FIND_SP_LIST ((long long int[]){35, 376223, 4006336753, 406615978649, 4154092115820191, 418155269059864129})
 
 int chk_isprime(unsigned long long int i)
 {
@@ -309,6 +310,8 @@ int main(int argc, char *argv[])
     printf("Now we could use the primelist and search for the first prime where (sp mod p1) == 0\n");
     printf("Once we find the first zero modulo, then p2 = sp / p1 and we have our factors!\n");
     */
+    
+
    printf("Looking for the semiprimes using our prime list:\n");
    /**
     * !!! I've already resolved this problem, but this explains my thought process !!!
@@ -316,34 +319,36 @@ int main(int argc, char *argv[])
     * first prime, and then another will find the second. Based on how the program is specified
     * I need to somehow have the search for all threads terminate once an if is satisfied.
     */
-   #pragma omp parallel for num_threads(thread_count) shared(found, p1, p2)
-   for (i = 0; i<list_cnt;i++) {
-        /**
-         * This marks where the for loop and be cancelled.
-         * A feature in omp for "breaking" the for loop
-         */
-        # pragma omp cancellation point for
-        if (!found && sp % primelist[i] == 0) 
-        #pragma omp critical
-        {
-            /**
-             * This check needs to be here in case
-             * another thread stumbles on p2 before
-             * a thread gets p1.
-             */
-            if (!found || primelist[i] < p1)
-            {
-                p1 = primelist[i];
-                p2 = sp / p1;
-                found = 1;
-            }
+   for (i = 0;i<6;i++) {
+        found = 0;    
+        sp = TO_FIND_SP_LIST[i];
+        #pragma omp parallel for num_threads(thread_count) shared(found, p1, p2)
+        for (j = 0; j<list_cnt;j++) {
+                /**
+                 * This marks where the for loop and be cancelled.
+                 * A feature in omp for "breaking" the for loop
+                 */
+                //# pragma omp cancellation point for
+                if (!found && sp % primelist[j] == 0) 
+                #pragma omp critical
+                {
+                    /**
+                     * This check needs to be here in case
+                     * another thread stumbles on p2 before
+                     * a thread gets p1.
+                     */
+                    if (!found || primelist[j] < p1)
+                    {
+                        p1 = primelist[j];
+                        p2 = sp / p1;
+                        found = 1;
+                    }
+                }
+                #pragma omp cancel for
         }
-        #pragma omp cancel for
+        
+        printf("The primes were: %u, and %u for %llu\n", p1, p2, sp);
    }
-   if (p1 == primelist[PRIME1] && p2 == primelist[PRIME2]) {
-        printf("The reverse search using the semiprime and the prime list worked!\n");
-        printf("Like above the primes were: %u, and %u for %llu\n", p1, p2, sp);
-    }
     return (i);
 }
 

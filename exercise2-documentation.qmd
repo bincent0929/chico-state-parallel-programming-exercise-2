@@ -124,3 +124,29 @@ Total number of primes chk_isprime(1000000000) in 0.161465 secs
 
 ## 3
 
+See `matrotate.c` for my OpenMP rotation program.
+
+In testing without OpenMP for rotating all the images, the program completed the to-be-parallelized portion in:
+```bash
+$ ./matrotate 
+Starting the rotations...
+Finished rotating.
+The pgms were rotated in 0.110802 sec
+```
+
+While adding an OpenMP to that loop this is what I got:
+```bash
+$ ./matrotate 
+Starting the rotations...
+Finished rotating.
+The pgms were rotated in 0.035044 secs
+```
+
+``` {python}
+n-parallel-rotation-t = 0.110802
+parallel-rotation-t = 0.035044
+
+rotation-speedup = n-parallel-rotation-t / parallel-rotation-t
+```
+
+Which is a `{python} rotation-speedup`x speedup!!!

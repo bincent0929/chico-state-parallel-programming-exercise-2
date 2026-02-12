@@ -2,7 +2,7 @@
 
 ### a.
 
-In running my `edited-pthread.c` program (located in `sumnumms/`), the only difference between runs is which thread presents its sum first.
+In running my `edited-pthread.c` program (located in `simplethread/`), the only difference between runs is which thread presents its sum first.
 
 Run #1:
 ```bash
@@ -139,17 +139,53 @@ See `eratosthenes-parallel/eratosomp.c` for my implementation.
 Here's an example output for the time:
 
 ```bash
-$ ./eratosomp 
+$ ./eratosomp
 Using DEFAULT thread_count of 20
 max uint = 4294967295
 max long long = 18446744073709551615
-Sufficient memory for prime sieve up to 1000000000 using 119 Mbytes at address=0x75110ccda010
-Initial set_isprime(1000000000) in 0.280678 secs
-chk_isprime(1000000000) in 4.042016 secs
+Sufficient memory for prime sieve up to 1000000000 using 119 Mbytes at address=0x7dded2474010
+Initial set_isprime(1000000000) in 0.271367 secs
+chk_isprime(1000000000) in 3.788116 secs
 Entering cross out loop
-Done with cross out loop with set_isprime(1000000000) time=1.919756 secs
-Total number of primes chk_isprime(1000000000) in 0.161465 secs
+Done with cross out loop with set_isprime(1000000000) time=1.919702 secs
+Total number of primes chk_isprime(1000000000) in 0.160676 secs
+Number of primes [0..1000000000]=50847534
 ```
+
+{::: {.callout-warning}
+I need to go back and create a function that finds this:
+1. 35: factored into 7, 5 
+2. 376,223: factored into 439 & 857 
+3. 4,006,336,753: factored into 46,411 & 86,323 
+4. 406,615,978,649: factored into 470,303 & 864,583 
+5. 4,154,092,115,820,191: factored into 47,868,193 & 86,781,887 
+6. 418,155,269,059,864,129: factored into 481,346,903 & 868,719,143
+
+Basically, just to have it find the primes in the prime list and then have is calculate the semiprime. And maybe feeding these into my logic for finding the primes from the semiprime but I'm unsure of whether I need to do that.
+:::}
+
+```bash
+Example large SP is 20127306543107, factored into p1=1299721, p2=15485867
+The largest prime in 1000000000 is 999999937
+The next largest prime in 1000000000 is 999999929
+Looking for the semiprimes using our prime list:
+The reverse search using the semiprime and the prime list worked!
+Like above the primes were: 1299721, and 15485867 for 20127306543107
+```
+
+As you can see, largest primes were 999999937 and then 999999929.
+
+The semiprime I calculated was 20127306543107 and my program effectively found its first prime, 1299721 using a parallelized `for` loop. See `eratosthenes-parallel/eratosomp.c` for the logic.
+
+{::: {.callout-warning}
+I need to do a speed up comparison. I think I'll just use the `time` bash function to do it.
+:::}
+
+{::: {.callout-warning}
+I guess I need to use a second source to verify my calculations.
+
+I think I'll just ask an LLM how I'm supposed to do this.
+:::}
 
 ## 3.
 

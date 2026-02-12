@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
     clock_gettime(CLOCK_MONOTONIC, &start);
     
     #pragma omp parallel for num_threads(THREAD_COUNT) \
-    private(inFilePath, outFileName, header, fdin, fdout, P, RRP, RLP) shared(cardfilelist)
+    private(inFilePath, outFileName, header, fdin, fdout, P, RRP, RLP, TP) shared(cardfilelist)
     for (int i = 0;i<CARDFILELISTLENGTH;i++) {
         snprintf(inFilePath, sizeof(inFilePath), "./cards_3x4_pgm/%s", cardfilelist[i]);
 
@@ -132,14 +132,16 @@ int main(int argc, char *argv[])
             printf("Error opening %s\n", outFileName); exit(-1);
         }
         
+        transposePixMat(P, TP);
+
         // Update header to be square 920x920
         header[26]='9'; header[27]='2'; header[28]='0';
         if (cardfilelist[i][1] == 'C' || cardfilelist[i][1] == 'S') {
-            swapColPixMat(P, RRP, DIMY);    
+            swapColPixMat(TP, RRP, DIMY);    
             writePGMFastSquare(fdout, header, RRP);
         }
         else {
-            swapRowPixMat(P, RLP, DIMY);
+            swapRowPixMat(TP, RLP, DIMY);
             writePGMFastSquare(fdout, header, RLP);
         }
 

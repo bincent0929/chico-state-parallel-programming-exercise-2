@@ -298,6 +298,7 @@ int main(int argc, char *argv[])
            sp, primelist[PRIME1], primelist[PRIME2]);
         
     printf("The largest prime in %llu is %u\n", MAX, primelist[list_cnt - 1]);
+    printf("The next largest prime in %llu is %u\n", MAX, primelist[list_cnt - 2]);
 #else
     sp = ((unsigned long long)primelist[10000]) * ((unsigned long long)primelist[50000]);
 

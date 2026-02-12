@@ -7,7 +7,7 @@
 
 #include <time.h>
 #include <omp.h>
-#include <cardlist.h>
+#include "cardlist.h"
 
 // This is the dimension of a playing card with a 3:4 Aspect Ratio (standing upright)
 #define DIMX (690)
@@ -58,10 +58,13 @@ int main(int argc, char *argv[])
     double fnow=0.0, fstart=0.0, faccum=0.0;
 
     int i;
-    char outFileName[64];
+    char outFileName[64], inFilePath[64];
 
     // initialize Pixel array with all zeros
     zeroPixMat(P);
+
+    // clear the output dir
+    system("rm tmp/*");
 
 #if 0
     if(argc < 3) {
@@ -108,17 +111,21 @@ int main(int argc, char *argv[])
     fnow = (double)now.tv_sec  + (double)now.tv_nsec / 1000000000.0;
     clock_gettime(CLOCK_MONOTONIC, &start);
     
-    for (int i;i<CARDFILELISTLENGTH;i++) {
-        if((fdin = open(cardfilelist[i], O_RDONLY, 0644)) < 0) {
-             printf("Error opening %s\n", cardfilelist[i]); exit(-1);
+    #pragma omp parallel for num_threads(THREAD_COUNT) \
+    private(inFilePath, outFileName, header, fdin, fdout, P, RRP, RLP) shared(cardfilelist)
+    for (int i = 0;i<CARDFILELISTLENGTH;i++) {
+        snprintf(inFilePath, sizeof(inFilePath), "./cards_3x4_pgm/%s", cardfilelist[i]);
+
+        if((fdin = open(inFilePath, O_RDONLY, 0644)) < 0) {
+             printf("Error opening %s\n", inFilePath); exit(-1);
         }
 
         // read in the PGM data here
-        readPGMHeaderFast(fdin, header);
+        readPGMHeaderSimple(fdin, header);
         readPGMDataFast(fdin, P);
         close(fdin);
 
-        snprintf(outFileName, sizeof(outFileName), "edited-%s", cardfilelist[i]);
+        snprintf(outFileName, sizeof(outFileName), "./tmp/edited-%s", cardfilelist[i]);
 
         // open binary file to write out data
         if((fdout = open(outFileName, O_WRONLY | O_CREAT, 0644)) < 0) {
@@ -234,7 +241,7 @@ void readPGMHeaderSimple(int fdin, char *header)
 {
     int bytesRead, bytesLeft, bytesWritten;
 
-    printf("Reading PGM header here\n");
+    //printf("Reading PGM header here\n");
 
     // header on each card is 38 bytes
     bytesLeft=38;
@@ -242,8 +249,10 @@ void readPGMHeaderSimple(int fdin, char *header)
 
     if(bytesRead < bytesLeft)
         exit(-1);
+    /*
     else
         printf("header=%s\n", header);
+    */
 
 }
 
@@ -277,15 +286,15 @@ void readPGMDataFast(int fdin, unsigned char Mat[][SQDIM])
     int bytesRead, bytesLeft, bytesWritten;
     int rowIdx, colIdx;
 
-    printf("Reading PGM data here\n");
+    //printf("Reading PGM data here\n");
 
     // now read in all of the data
     bytesRead=0;
 
     // read in whole rows at a time to speed up
     for(rowIdx = 0; rowIdx < DIMY; rowIdx++)
-    {
-        bytesRead=read(fdin, (void *)&P[rowIdx][0], DIMX);
+    { // the gloabl P was used here instead of Mat originally
+        bytesRead=read(fdin, (void *)&Mat[rowIdx][0], DIMX);
     }
 
 }
@@ -318,12 +327,12 @@ void writePGMFast(int fdout, char *header, unsigned char Mat[][SQDIM])
     int bytesRead, bytesLeft, bytesWritten;
     int rowIdx, colIdx;
 
-    printf("Would write out a header and data here\n");
+    //printf("Would write out a header and data here\n");
     bytesLeft=38;
 
     bytesWritten=write(fdout, (void *)header, bytesLeft);
     
-    printf("wrote %d bytes for header\n", bytesWritten);
+    //printf("wrote %d bytes for header\n", bytesWritten);
 
     // now write out all of the data
     bytesWritten=0;
@@ -339,12 +348,12 @@ void writePGMFastSquare(int fdout, char *header, unsigned char Mat[][SQDIM])
     int bytesRead, bytesLeft, bytesWritten;
     int rowIdx, colIdx;
 
-    printf("Would write out a header and data here\n");
+    //printf("Would write out a header and data here\n");
     bytesLeft=38;
 
     bytesWritten=write(fdout, (void *)header, bytesLeft);
     
-    printf("wrote %d bytes for header\n", bytesWritten);
+    //printf("wrote %d bytes for header\n", bytesWritten);
 
     // now write out all of the data
     bytesWritten=0;

@@ -14,7 +14,8 @@
 				"quarto.quarto",
 				"ms-vscode.makefile-tools",
 				"ms-python.python",
-				"ms-vscode.cpptools-extension-pack"
+				"ms-vscode.cpptools-extension-pack",
+				"ngtystr.ppm-pgm-viewer-for-vscode"
 			]
 		}
 	},

@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <omp.h>
 
 // This is the dimension of a playing card with a 3:4 Aspect Ratio (standing upright)
 #define DIMX (690)
@@ -83,8 +84,8 @@ int main(int argc, char *argv[])
 
 #if 0
     // demonstrate rotation with a smaller verification size
-    //demoRotate(8);
-    //printf("Demonstration done\n");
+    demoRotate(8);
+    printf("Demonstration done\n");
 #endif
 
     // Zero out to test file output
@@ -93,14 +94,18 @@ int main(int argc, char *argv[])
     // Rotate Right zero out test - replace with correct rotation
     //zeroPixMat(RRP);
 
+    swapColPixMat(P, RRP, DIMY);
+    //swapRowPixMat(P, RLP, DIMY);
+
     // Update header to be square 920x920
     header[26]='9'; header[27]='2'; header[28]='0';
     printf("\nUpdated SQUARE HEADER:\n");
     printPGMHeader(header);
 
     // write out modified PGM data here
-    //writePGMFastSquare(fdout, header, RRP);
-    writePGMFastSquare(fdout, header, P);
+    writePGMFastSquare(fdout, header, RRP);
+    //writePGMFastSquare(fdout, header, RLP);
+    //writePGMFastSquare(fdout, header, P);
     close(fdout);
 
     printf("Read and then write of unmodified or test PGM done\n");
